@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCO REQUEST</title>
+    <title>PCO API REQUEST</title>
 </head>
 <body onload="onPageLoad()">
     <button id="request_api" onclick="pco_init_oauth()">Request OAuth2.0 Token</button>
-    <button onclick="pco_callApi()">Request API (List of Services)</button>
-    <div id="output"></div>
+    <button onclick="pco_load_services()">Request API (List of Services)</button>
+    <label for="plans">Select Plan</label>
+    <select id="plans" onchange="pco_get_songs()"></select>
+    <div id="items"></div>
     <script src="script.js"></script>
 </body>
 </html>
