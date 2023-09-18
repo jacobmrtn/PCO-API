@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify API Connection</title>
+</head>
+<body onload="onPageLoad()">
+    <h1>Spotify API Connection</h1>
+    <label for="spotify_client_id">Spotify Client ID</label>
+    <input type="text" id="client_id" placeholder="CLIENT ID HERE">
+
+    <label for="spotify_client_secret">Spotify Client Secret</label>
+    <input type="password" id="client_secret" placeholder="CLIENT SECRET HERE">
+
+    <button id="oauth_spotify" onclick="requestAuthorization()">Connect Account</button>
+
+    <ol>
+        <li>Open <a href="https://developers.spotify.com/dashboard/create">spotify.developers.com</a></li>
+        <li>Create a new application</li>
+        <li>Give it a name, and description</li>
+        <li>Make the redirect uri <a href="http://127.0.0.1:8888/app.html"></a></li>
+        <li>Save it.</li>
+    </ol>
+    <ul>
+        <li>Then copy and paste the <b>CLIENT ID</b> and <b>CLIENT SECRET</b> into the boxes</li>
+        <li>Click Connect account</li>
+    </ul>
+
+    <script src="spotify.js"></script>
+</body>
+</html>
