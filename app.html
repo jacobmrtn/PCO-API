@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCO X SPOTIFY</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="pco_on_page_load()">
+
+    <div class="request-tokens">
+        <button id="request_api" onclick="pco_init_oauth()">Request PCO token</button>
+        <button id="request_spotify_token" onclick="re_auth_spot()">Request Spotify token</button>
+    </div>
+
+    <div class="group">
+        <div class="drops">
+            <label for="plans">Select PCO Plan</label>
+            <button onclick="pco_load_services()" class="refresh-buttons">Refresh Plans</button>
+            <p id="pco_loading_text"></p>
+        </div>
+        <select id="plans" onchange="pco_get_songs()" class="refresh-buttons"></select>
+    </div>
+
+    <div class="group">
+        <div class="drops">
+            <label for="playlists">Select Spotify Playlist</label>
+            <button id="refreshPlaylistBtn" onclick="refresh_spotify_playlists()">Refresh Playlists</button>
+            <p id="spotify_loading_text"></p>
+        </div>
+        <select id="playlists" onchange="refresh_spotify_playlist_tracks()" class="refresh-buttons"></select>
+    </div>
+
+    <div class="form" id="song_list_section">
+        <div class="song-list-heading">
+            <h3>Spotify Songs</h3>
+            <h3>Planning Center Songs</h3>
+        </div>
+        <div class="song-list-groups">
+            <div id="spotify_song_list">
+                <p>Select a playlist</p>
+            </div>
+            <div id="pco_song_list">
+                <p>Select a plan</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="configure-button">
+        <button id="compair_both_list" onclick="compair_lists()">Continue</button>
+    </div>
+
+    <div id="pco_songs"></div>
+    <script src="pco.js"></script>
+    <script src="spotify.js"></script>
+</body>
+</html>
