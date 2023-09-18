@@ -1,7 +1,7 @@
 <?php
     #$pco_secret = '';
     #$pco_client_id = '';
-    $pco_uri = 'http://127.0.0.1:8888/index.html';
+    $pco_uri = 'http://127.0.0.1:8888/app.html';
 
     $pco_code = json_decode(file_get_contents('php://input'), true);
 
