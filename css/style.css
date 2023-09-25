@@ -1,0 +1,160 @@
+body {
+    background-color: #212529;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+::-webkit-scrollbar {
+    background-color: #403f3f !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #212529;
+}
+
+label {
+    font-size: x-large;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 900;
+    color: white;
+}
+
+input {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: xx-large;
+    box-shadow: inset 0px 0px 0px 1px #676767;
+    border: none;
+    border-radius: 3px;
+    background-color: transparent;
+}
+
+button {
+    font-weight: 700;
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: #0b5ed7;
+}
+
+select {
+    margin-top: 10px;
+    border-radius: 3px;
+    background-color: transparent;
+    color: white;
+    padding: 5px;
+    width: 50%;
+}
+
+#refreshDeviceBtn,
+#refreshPlaylistBtn {
+    margin: 10px;
+}
+
+#playlistSection {
+    display: block;
+}
+
+#request_api {
+    margin-right: 5px;
+}
+
+p {
+    color: white;
+}
+
+.group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px; 
+    margin-bottom: 15px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.drops {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.comp {
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 3px;
+    outline: 1px solid #676767;
+    padding: 10px;
+}
+
+
+.form {
+    display: flex;
+    flex-direction: column;
+    border-radius: 3px;
+    padding: 10px;
+    outline: 1px solid #676767;
+    color: white !important;
+    width: 75%;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+#song_list_section {
+    height: 500px;
+    overflow-y: scroll;
+}
+
+.song-list-groups {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.song-list-heading {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.song-list-heading > h3 {
+    margin-bottom: 0;
+}
+
+.song-list-section-bottom {
+    display: flex;
+    justify-content: center;
+}
+
+#playlistDetails {
+    padding: 10px;
+    border-radius: 3px;
+    outline: 1px solid #676767;
+    width: fit-content;
+}
+
+.configure-button {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+div.request-tokens {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+div.request-tokens:first-child{
+    margin-bottom: 5px;
+}
+
+.refresh-buttons {
+    margin: 10px;
+}
