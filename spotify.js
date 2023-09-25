@@ -1,98 +1,67 @@
-let redirect_uri = "http://127.0.0.1:8888/app.html"
-
-let client_id = ""
-let client_secret = ""
+let redirect_uri = "http://127.0.0.1:8888/spotify.html"
 
 //Store for later
 let playlist_id = ""
 
-const AUTHORIZE = 'https://accounts.spotify.com/authorize'
-const TOKEN = 'https://accounts.spotify.com/api/token'
 const PLAYLISTS = "https://api.spotify.com/v1/me/playlists"
 const PLAYLISTS_ID = "https://api.spotify.com/v1//playlists"
-const DEVICES = "https://api.spotify.com/v1/me/player/devices"
+
 
 function onPageLoad() {
-    client_id = localStorage.getItem("client_id")
-    client_secret = localStorage.getItem("client_secret")
-
     if (window.location.search.length > 0){
-        handleRedirect()
+        spotify_handle_access_token_redirect()
     } else {
-        let access_token = localStorage.getItem("access_token")
+        let access_token = localStorage.getItem("spotify_access_token")
         if (access_token == null ) {
-            console.log('fix this please!!!')
-        } else {
+            console.warn("User probably requested token again. Clear localstorage")
+            console.table(localStorage)
+        } else if(access_token != null){
             window.location.href = "http://127.0.0.1:8888/app.html"
         }
     }
 }
 
-function re_auth_spot() {
-    localStorage.removeItem('client_id')
-    localStorage.removeItem('client_secret')
-    localStorage.removeItem('access_token')
-    window.location.href ='http://127.0.0.1:8888/spotify.html'
+function init_spot_reauth() {
+    localStorage.removeItem('spotify_access_token')
+    localStorage.removeItem('spotify_refresh_token')
+    window.location.href = "http://127.0.0.1:8888/spotify.html"
+}
+function spotify_get_access_token(spotify_code) {
+    fetch('./php/spotify/spotify_call_authorization_api.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(spotify_code),
+    })
+        .then(response => response.json())
+        .then(data => {
+            data = JSON.parse(data)
+            localStorage.setItem('spotify_access_token', data.access_token)
+            localStorage.setItem('spotify_refresh_token', data.refresh_token)
+            window.location.href = "http://127.0.0.1:8888/app.html"
+        })
+        .catch(error => {
+            console.error(error)
+        })
 }
 
-function handleRedirect() {
-    let code =spotify_get_code()
-    fetchAccessToken(code)
-    window.history.pushState("", "", redirect_uri) 
+function spotify_handle_access_token_redirect() {
+    let spotify_code = spotify_get_code()
+
+    spotify_get_access_token(spotify_code)
+    window.history.pushState("", "", redirect_uri)
 }
 
-function callAuthorizationApi(body){
-    client_id = localStorage.getItem('client_id')
-    client_secret = localStorage.getItem('client_secret')
-    let xhr = new XMLHttpRequest()
-    xhr.open("POST", TOKEN, true)
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    xhr.setRequestHeader('Authorization', 'Basic ' + btoa(localStorage.getItem('client_id')+ ":" + client_secret))
-    xhr.send(body)
-    xhr.onload = handleAuthorizationResponse
-}
-
-function refreshAccessToken() {
-    refresh_token = localStorage.getItem('refresh_token')
-    client_id = localStorage.getItem('client_id')
-    let body = "grant_type=refresh_token"
-    body += "&refresh_token=" + localStorage.getItem('refresh_token')
-    body += "&client_id=" + client_id
-    callAuthorizationApi(body)
-    alert('Refreshed Spotify access token')
-}
-
-function fetchAccessToken(code){
-    let body = "grant_type=authorization_code"
-    body += "&code=" + code 
-    body += "&redirect_uri=" + encodeURI(redirect_uri)
-    body += "&client_id=" + client_id
-    body += "&client_secret=" + client_secret
-    console.log(body)
-    callAuthorizationApi(body)
-}
-
-function handleAuthorizationResponse() {
-    if(this.status == 200) {
-        var data = JSON.parse(this.responseText)
-        console.log(data)
-        var data = JSON.parse(this.responseText)
-        if(data.access_token != undefined) {
-            access_token = data.access_token
-            localStorage.setItem("access_token", access_token)
-        }
-        if (data.refresh_token != undefined) {
-            refresh_token = data.refresh_token
-            localStorage.setItem("refresh_token",  refresh_token)
-        }
-        onPageLoad()
-    } else {
-        console.log(this.responseText)
-        if(this.responseText.includes('Invalid refresh token')) {
-            alert('Error: Try reloading the page.')
-        }
-    }
-}
+// function refreshAccessToken() {
+//     refresh_token = localStorage.getItem('refresh_token')
+//     client_id = localStorage.getItem('client_id')
+//     let body = "grant_type=refresh_token"
+//     body += "&refresh_token=" + localStorage.getItem('refresh_token')
+//     body += "&client_id=" + client_id
+//     callAuthorizationApi(body)
+//     alert('Refreshed Spotify access token')
+// }
 
 function spotify_get_code() {
     let code = null
@@ -101,32 +70,83 @@ function spotify_get_code() {
         const urlParams = new URLSearchParams(queryString)
         code = urlParams.get('code')
     }
+    console.log(code)
+    localStorage.setItem('spotify_code', code)
     return code
 }
+function spotify_request_access_token() {
+    fetch('./php/spotify/spotify_request_access_token.php', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(data => {
+            window.location.href = data
+        })
+        .catch(error => {
+            console.error(error)
+        })
+}
 
-function requestAuthorization()  {
-    client_id = document.getElementById('client_id').value
-    client_secret = document.getElementById('client_secret').value
-
-    localStorage.setItem('client_id', client_id)
-    localStorage.setItem('client_secret', client_secret)
-
-    let url = AUTHORIZE
-    url += "?client_id=" + client_id
-    url += "&response_type=code"
-    url += "&redirect_uri=" + encodeURI(redirect_uri)
-    url += "&show_dialog=true"
-    url += "&scope=playlist-modify-public playlist-modify-private user-read-playback-state ugc-image-upload user-modify-playback-state user-read-currently-playing app-remote-control streaming playlist-read-private playlist-read-collaborative user-follow-modify user-follow-read user-read-playback-position user-top-read user-read-recently-played user-library-modify user-library-read"
-    window.location.href = url
+function spotify_refresh_access_token() {
+    fetch('./php/spotify/spotify_refresh_access_token.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(localStorage.getItem('spotify_refresh_token'))
+    })        
+        .then(response => response.json())
+        .then(data => {
+            data = JSON.parse(data)
+            localStorage.setItem('spotify_access_token', data.access_token)
+            localStorage.setItem('spotify_refresh_token', data.refresh_token)
+            if(data.error = "invalid_grant") {
+                alert('Reauthorize the Spotify app. Click "Request Spotify token')
+            }
+        })
+        .catch(error => {
+            console.error(error)
+        })
 }
 
 function refresh_spotify_playlists() {
-    spotify_call_api("GET", PLAYLISTS, null, handle_spotify_playlist_response)
+    document.getElementById('spotify_loading_text').innerHTML = "LOADING..."
+    spotify_call_api("GET", PLAYLISTS).then ((data) => {
+        data = JSON.parse(data)
+        remove_all_children("playlists")
+        remove_all_children('playlists_to_save')
+        
+        add_dropdown_header('playlists')
+        add_dropdown_header('playlists_to_save')
+        data.items.forEach(item => add_spotify_playlist(item, 'playlists'))
+        data.items.forEach(item => add_spotify_playlist(item, 'playlists_to_save'))
+        loading_text('spotify_loading_text', 'DONE!', 1000)
+    }).catch(error => {
+        console.error(error)
+    })
 }
 
-function refresh_spotify_playlist_tracks() {
+function spotify_refresh_playlist_tracks() {
     playlist_id = document.getElementById('playlists').value
-    spotify_call_api("GET", `https://api.spotify.com/v1/playlists/${playlist_id}/tracks?fields=next%2Citems%28track%28name%2C+id%29%29%2Ctotal`, null, testResponse)
+    spotify_call_api("GET", `https://api.spotify.com/v1/playlists/${playlist_id}/tracks?fields=next%2Citems%28track%28name%2C+id%29%29%2Ctotal`).then ((data) => {
+        data = JSON.parse(data)
+        if(data.total > 100) {
+            remove_all_children('spotify_song_list')
+            data.items.forEach( (item, index) => add_spotify_track(item, index))
+            let trackTotal = Math.floor(data.total/100) + 1
+            for(let offset = 1; offset < trackTotal; offset ++) {
+                spotify_handle_playlist_track_response_over_100(offset)
+            }
+        } else {
+            remove_all_children('spotify_song_list')
+            data.items.forEach( (item, index) => add_spotify_track(item, index))
+        }
+    }).catch(error => {
+        console.error(error)
+    })
 }
 
 
@@ -145,7 +165,7 @@ function testResponse() {
             data.items.forEach( (item, index) => add_spotify_track(item, index))
             let trackTotal = Math.floor(data.total/100) + 1
             for(let offset = 1; offset < trackTotal; offset ++) {
-                handle_spotify_playlist_track_response_100(offset)
+                spotify_handle_playlist_track_response_over_100(offset)
             }
         } else {
             remove_all_children('spotify_song_list')
@@ -159,38 +179,16 @@ function testResponse() {
     }   
 }
 
-
 // Call the api
-function handle_spotify_playlist_track_response_100(offset) {
-    spotify_call_api("GET", `https://api.spotify.com/v1/playlists/${playlist_id}/tracks?fields=items%28track%28name%2Cid%29%29&offset=${offset * 100}`, null, handle_spotify_playlist_track_response_2)
-}
-
-function handle_spotify_playlist_track_response_2() {
-    if ( this.status == 200 ){
-        var data = JSON.parse(this.responseText)
-        //console.log(data.items)
+function spotify_handle_playlist_track_response_over_100(offset) {
+    spotify_call_api("GET", `https://api.spotify.com/v1/playlists/${playlist_id}/tracks?fields=items%28track%28name%2Cid%29%29&offset=${offset * 100}`).then ((data) => {
+        data = JSON.parse(data)
         data.items.forEach((item, index) => add_spotify_track(item, index))
-    } else if ( this.status == 401 ){
-        refreshAccessToken()
-    } else {
-        console.log(this.responseText)
-        alert(this.responseText)
-    }
+    }).catch(error => {
+        console.error(error)
+    })
 }
 
-function handle_spotify_playlist_response(){
-    if ( this.status == 200 ){
-        var data = JSON.parse(this.responseText)
-        //console.log(data)
-        remove_all_children("playlists")
-        data.items.forEach(item => add_spotify_playlist(item))
-    } else if ( this.status == 401 ){
-        refreshAccessToken()
-    } else {
-        console.log(this.responseText)
-        alert(this.responseText)
-    }
-}
 
 function handle_spotify_playlist_track_response() {
     if ( this.status == 200 ){
@@ -206,11 +204,21 @@ function handle_spotify_playlist_track_response() {
     }
 }
 
-function add_spotify_playlist(item){
+function add_dropdown_header(id) {
+    let select_node = document.createElement("option")
+
+    select_node.innerHTML = "Select playlist --"
+
+    document.getElementById(id).appendChild(select_node)
+}
+
+function add_spotify_playlist(item, id){
     let node = document.createElement("option")
+
     node.value = item.id
     node.innerHTML = item.name + " (" + item.tracks.total + ")"
-    document.getElementById("playlists").appendChild(node)
+
+    document.getElementById(id).appendChild(node)
 }
 
 function add_spotify_track(item, index) {
@@ -222,13 +230,21 @@ function add_spotify_track(item, index) {
     document.getElementById("spotify_song_list").appendChild(node)
 }
 
-function spotify_call_api(method, url, body, callback){
-    let xhr = new XMLHttpRequest()
-    xhr.open(method, url, true)
-    xhr.setRequestHeader('Content-Type', 'application/json')
-    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('access_token'))
-    xhr.send(body)
-    xhr.onload = callback
+async function spotify_call_api(method, url) {
+    const spotify_access_info = JSON.stringify({
+        "spotify_access_token": localStorage.getItem('spotify_access_token'),
+        "url": url,
+        "method": method
+    })
+    const response = await fetch('./php/spotify/spotify_call_api.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: spotify_access_info
+    })
+
+    return response.json()
 }
 
 function remove_all_children( elementId){
@@ -236,4 +252,11 @@ function remove_all_children( elementId){
     while (node.firstChild) {
         node.removeChild(node.firstChild)
     }
+}
+
+function loading_text(id, text, timeout) {
+    document.getElementById(id).innerHTML = text
+    setTimeout(() => {
+        document.getElementById(id).innerHTML = ""
+    }, timeout)
 }
