@@ -1,6 +1,6 @@
 const pco_authorize_link = 'https://api.planningcenteronline.com/oauth/authorize'
 const pco_token_link = 'https://api.planningcenteronline.com/oauth/token'
-const pco_client_id = '436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819'
+//const pco_client_id = ''
 const pco_uri = 'http://127.0.0.1:8888/app.html'
 const scope = 'services'
 
