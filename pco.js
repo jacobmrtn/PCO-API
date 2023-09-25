@@ -1,12 +1,16 @@
 const pco_authorize_link = 'https://api.planningcenteronline.com/oauth/authorize'
 const pco_token_link = 'https://api.planningcenteronline.com/oauth/token'
-//const pco_client_id = ''
+const pco_client_id = '436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819'
 const pco_uri = 'http://127.0.0.1:8888/app.html'
 const scope = 'services'
 
 
+// Save for later
+let spotify_playlist_id = ""
+
+window.addEventListener('load', pco_on_page_load())
+
 function pco_on_page_load() {
-    
     if (window.location.search.length > 0){
         pco_handle_redirect()
     } 
@@ -17,6 +21,9 @@ function pco_handle_redirect() {
     pco_request_access_token()
     window.history.pushState("", "", pco_uri)
 }
+
+document.getElementById('request_api').addEventListener('click', pco_init_oauth)
+document.getElementById('pco_load_services').addEventListener('click', pco_load_services)
 
 function pco_init_oauth() {
     // fetch('pco_init_oauth.php', {
@@ -40,7 +47,7 @@ function pco_get_code() {
 }
 
 function pco_request_access_token() {
-    fetch('pco_request_access_token.php', {
+    fetch('./php/pco/pco_request_access_token.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -49,7 +56,7 @@ function pco_request_access_token() {
     }) 
         .then(response => response.json())
         .then(data => {
-            localStorage.setItem('pco_access_token', data.access_token)
+            localStorage.setItem('pco_access_token', data.access_token) 
             localStorage.setItem('pco_refresh_token', data.refresh_token)
             console.log(data)
         })
@@ -64,7 +71,7 @@ async function pco_call_api(url) {
         "pco_access_token": localStorage.getItem('pco_access_token'),
         "url": url
     })
-    const response = await fetch('pco_call_api.php', {
+    const response = await fetch('./php/pco/pco_call_api.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -76,6 +83,7 @@ async function pco_call_api(url) {
 }
 
 function populate_plan_dropdown(parsed_data) {
+    document.getElementById('refresh_plans').innerHTML = 'Select plans --'
     for(let i = 0; i < parsed_data.data.length; i++) {
         add_plan_title(parsed_data, i)
     }
@@ -101,7 +109,6 @@ function add_plan_item(pco_response, index) {
 
 function pco_load_services() {
     document.getElementById('pco_loading_text').innerHTML = "LOADING..."
-    console.warn("LOADING SERVICES")
     // Load data from PCO and wait & Then use that data to populate the dropdown
     pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=-created_at").then ((data) => {
         data = JSON.parse(data)
@@ -112,7 +119,6 @@ function pco_load_services() {
 
 function pco_get_songs() {
     let apiLink = document.getElementById('plans').value + '/items'
-    console.warn("LOADING PLAN ITEMS")
     pco_call_api(apiLink).then ((pco_response) => {
         pco_response = JSON.parse(pco_response)
         remove_all_children('pco_song_list')
@@ -142,13 +148,13 @@ function compair_lists() {
     let pco_song_list = document.getElementById('pco_song_list')
     let spotify_song_children = document.getElementById('spotify_song_list')
 
-    if(pco_song_list.children.length == 1 && spotify_song_children.children.length == 1 ) {
-        alert('Please Select a Spotify and PCO playlist')
-        return
-    } else if(pco_song_list.children.length == 1 || spotify_song_children.children.length == 1){
-        alert('Please Select a Spotify and PCO playlist')
-        return
-    }
+    // if(pco_song_list.children.length == 1 && spotify_song_children.children.length == 1 ) {
+    //     alert('Please Select a Spotify and PCO playlist')
+    //     return
+    // } else if(pco_song_list.children.length == 1 || spotify_song_children.children.length == 1){
+    //     alert('Please Select a Spotify and PCO playlist')
+    //     return
+    // }
     let pco_list = []
     let spotify_list = []
     for(let i = 0; i < spotify_song_children.children.length; i++) {
@@ -159,13 +165,43 @@ function compair_lists() {
         pco_list.push(pco_song_list.children[i].innerHTML)
     }
 
-    const hasMatch = spotify_list.some(item1 =>
-        pco_list.some(item2 => item1.includes(item2))    
-    )
+    for(let spotify_items = 0; spotify_items < spotify_list.length; spotify_items++) {
+        for(let pco_items = 0; pco_items < pco_list.length; pco_items++) {
+            if(pco_list[pco_items].includes(spotify_list[spotify_items])) {
+                let spotify_match = spotify_song_children.children[spotify_items].id
+                spotify_call_delete_api('DELETE', `https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`,spotify_match, spotify_playlist_id).then ((data) => {
+                    console.log(`spotify:track:${spotify_match}`)
+                    data = JSON.parse(data)
+                    console.log(data)
+                })
+                console.log(document.getElementById(spotify_match))
+                console.log(`PCO MATCH: "${pco_list[pco_items]}"`)
+                console.log(`SPOTIFY MATCH: "${spotify_song_children.children[spotify_items].id}"`)
+            }
+        }
+    }
 
-    console.log(hasMatch)
+}
+
+function spotify_get_playlist_id() {
+    spotify_playlist_id = document.getElementById('playlists_to_save').value    
+}
 
 
-    console.table(spotify_list)
-    console.table(pco_list)
+async function spotify_call_delete_api(method, url, spotify_match, spotify_playlist_id) {
+    const spotify_access_info = JSON.stringify({
+        "spotify_song_uri": `spotify:track:${spotify_match}`,
+        "spotify_snapshot_id": `${spotify_playlist_id}`,
+        "spotify_access_token": localStorage.getItem('spotify_access_token'),
+        "url": url,
+        "method": method,
+    })
+    const response = await fetch('./php/spotify/spotify_call_delete_api.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: spotify_access_info
+    })
+    return response.json()
 }
