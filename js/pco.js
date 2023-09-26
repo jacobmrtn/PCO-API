@@ -7,6 +7,7 @@ const scope = 'services'
 
 // Save for later
 let spotify_playlist_id = ""
+let spotify_playlist_snapshot_id = ""
 
 window.addEventListener('load', pco_on_page_load())
 
@@ -169,11 +170,16 @@ function compair_lists() {
         for(let pco_items = 0; pco_items < pco_list.length; pco_items++) {
             if(pco_list[pco_items].includes(spotify_list[spotify_items])) {
                 let spotify_match = spotify_song_children.children[spotify_items].id
-                spotify_call_delete_api('DELETE', `https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`,spotify_match, spotify_playlist_id).then ((data) => {
+
+                spotify_playlist_snapshot_id = spotify_get_playlist_snapshot_id()
+                spotify_playlist_id = spotify_get_playlist_id()
+
+                spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`,spotify_match, spotify_playlist_snapshot_id).then ((data) => {
                     console.log(`spotify:track:${spotify_match}`)
                     data = JSON.parse(data)
                     console.log(data)
                 })
+
                 console.log(document.getElementById(spotify_match))
                 console.log(`PCO MATCH: "${pco_list[pco_items]}"`)
                 console.log(`SPOTIFY MATCH: "${spotify_song_children.children[spotify_items].id}"`)
@@ -183,18 +189,30 @@ function compair_lists() {
 
 }
 
+function spotify_get_playlist_snapshot_id() { 
+    let playlists = document.getElementById('playlists')
+    let selected_playlist = playlists.options[playlists.selectedIndex]
+    return spotify_playlist_snapshot_id = selected_playlist.getAttribute('data-snapshot-id')
+}
+
 function spotify_get_playlist_id() {
-    spotify_playlist_id = document.getElementById('playlists_to_save').value    
+    return spotify_playlist_id = document.getElementById('playlists').value
 }
 
 
-async function spotify_call_delete_api(method, url, spotify_match, spotify_playlist_id) {
+async function spotify_call_delete_api(url, spotify_match, spotify_playlist_id) {
     const spotify_access_info = JSON.stringify({
-        "spotify_song_uri": `spotify:track:${spotify_match}`,
-        "spotify_snapshot_id": `${spotify_playlist_id}`,
         "spotify_access_token": localStorage.getItem('spotify_access_token'),
         "url": url,
-        "method": method,
+        test: 
+            {
+                tracks:[
+                    {
+                        uri: `spotify:track:${spotify_match}`
+                    }
+                ],
+                snapshot_id: `${spotify_playlist_id}`
+            }
     })
     const response = await fetch('./php/spotify/spotify_call_delete_api.php', {
         method: 'POST',
