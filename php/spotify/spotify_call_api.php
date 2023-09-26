@@ -13,6 +13,15 @@
         "Authorization: Bearer {$spotify_access_token}",
     ]);
 
-    $response = json_encode(curl_exec($ch));
-    echo $response;
+
+    $response = curl_exec($ch);
+    if($response !== false) {
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if($http_code == 200) {
+            echo json_encode($response);        
+        } elseif($http_code == 401) {
+            echo $http_code;        
+        }
+    }
+    
 ?>
