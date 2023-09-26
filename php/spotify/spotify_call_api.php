@@ -20,7 +20,8 @@
         if($http_code == 200) {
             echo json_encode($response);        
         } elseif($http_code == 401) {
-            echo $http_code;        
+            $response = '{"error": "401"}';
+            echo json_encode($response);        
         }
     }
     
