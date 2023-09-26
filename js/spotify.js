@@ -116,14 +116,20 @@ function refresh_spotify_playlists() {
     document.getElementById('spotify_loading_text').innerHTML = "LOADING..."
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
-        remove_all_children("playlists")
-        remove_all_children('playlists_to_save')
-        
-        add_dropdown_header('playlists')
-        add_dropdown_header('playlists_to_save')
-        data.items.forEach(item => add_spotify_playlist(item, 'playlists'))
-        data.items.forEach(item => add_spotify_playlist(item, 'playlists_to_save'))
-        loading_text('spotify_loading_text', 'DONE!', 1000)
+        console.log(data)
+        if(data.length < 5 && data.includes('401')) {
+            loading_text('spotify_loading_text', 'Failed! - Try requesting a new Spotify token', null)
+        } else {
+            remove_all_children("playlists")
+            remove_all_children('playlists_to_save')
+            
+            add_dropdown_header('playlists')
+            add_dropdown_header('playlists_to_save')
+            data.items.forEach(item => add_spotify_playlist(item, 'playlists'))
+            data.items.forEach(item => add_spotify_playlist(item, 'playlists_to_save'))
+            loading_text('spotify_loading_text', 'DONE!', 1000)
+        }
+
     }).catch(error => {
         console.error(error)
     })
@@ -189,35 +195,17 @@ function spotify_handle_playlist_track_response_over_100(offset) {
     })
 }
 
-
-function handle_spotify_playlist_track_response() {
-    if ( this.status == 200 ){
-        var data = JSON.parse(this.responseText)
-        console.log(data)
-        remove_all_children('spotify_song_list')
-        data.items.forEach( (item, index) => add_spotify_track(item, index))
-    } else if ( this.status == 401 ){
-        refreshAccessToken()
-    } else {
-        console.log(this.responseText)
-        alert(this.responseText)
-    }
-}
-
 function add_dropdown_header(id) {
     let select_node = document.createElement("option")
-
     select_node.innerHTML = "Select playlist --"
-
     document.getElementById(id).appendChild(select_node)
 }
 
 function add_spotify_playlist(item, id){
     let node = document.createElement("option")
-
     node.value = item.id
     node.innerHTML = item.name + " (" + item.tracks.total + ")"
-
+    node.setAttribute('data-snapshot-id', item.snapshot_id)
     document.getElementById(id).appendChild(node)
 }
 
@@ -256,7 +244,11 @@ function remove_all_children( elementId){
 
 function loading_text(id, text, timeout) {
     document.getElementById(id).innerHTML = text
-    setTimeout(() => {
-        document.getElementById(id).innerHTML = ""
-    }, timeout)
+    if(timeout == null) {
+        document.getElementById(id).innerHTML = text
+    } else if(timeout != null) {
+        setTimeout(() => {
+            document.getElementById(id).innerHTML = ""
+        }, timeout)
+    }
 }
