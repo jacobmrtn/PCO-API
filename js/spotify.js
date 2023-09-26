@@ -116,8 +116,7 @@ function refresh_spotify_playlists() {
     document.getElementById('spotify_loading_text').innerHTML = "LOADING..."
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
-        console.log(data)
-        if(data.length < 5 && data.includes('401')) {
+        if(data.length < 15 && data.includes("401")) {
             loading_text('spotify_loading_text', 'Failed! - Try requesting a new Spotify token', null)
         } else {
             remove_all_children("playlists")
@@ -127,7 +126,7 @@ function refresh_spotify_playlists() {
             add_dropdown_header('playlists_to_save')
             data.items.forEach(item => add_spotify_playlist(item, 'playlists'))
             data.items.forEach(item => add_spotify_playlist(item, 'playlists_to_save'))
-            loading_text('spotify_loading_text', 'DONE!', 1000)
+            loading_text('spotify_loading_text', 'DONE!', 5000)
         }
 
     }).catch(error => {
