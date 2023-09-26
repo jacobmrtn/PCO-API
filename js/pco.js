@@ -1,6 +1,6 @@
 const pco_authorize_link = 'https://api.planningcenteronline.com/oauth/authorize'
 const pco_token_link = 'https://api.planningcenteronline.com/oauth/token'
-//const pco_client_id = ''
+const pco_client_id = '436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819'
 const pco_uri = 'http://127.0.0.1:8888/app.html'
 const scope = 'services'
 
@@ -8,6 +8,7 @@ const scope = 'services'
 // Save for later
 let spotify_playlist_id = ""
 let spotify_playlist_snapshot_id = ""
+
 
 window.addEventListener('load', pco_on_page_load())
 
@@ -110,11 +111,16 @@ function add_plan_item(pco_response, index) {
 
 function pco_load_services() {
     document.getElementById('pco_loading_text').innerHTML = "LOADING..."
-    // Load data from PCO and wait & Then use that data to populate the dropdown
     pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=-created_at").then ((data) => {
         data = JSON.parse(data)
-        populate_plan_dropdown(data)
-        loading_text('pco_loading_text', 'DONE!', 1000)
+        console.log(data)
+        if(data.length < 15) {
+            console.log("Error")
+            loading_text('pco_loading_text', 'Failed! - Try requesting a new PCO token', null)
+        } else {
+            populate_plan_dropdown(data)
+            loading_text('pco_loading_text', 'DONE!', 5000)
+        }
     })
 }
 
@@ -140,14 +146,19 @@ function remove_all_children(element) {
 
 function loading_text(id, text, timeout) {
     document.getElementById(id).innerHTML = text
-    setTimeout(() => {
-        document.getElementById(id).innerHTML = ""
-    }, timeout)
+    if(timeout == null) {
+        document.getElementById(id).innerHTML = text
+    } else if(timeout != null) {
+        setTimeout(() => {
+            document.getElementById(id).innerHTML = ""
+        }, timeout)
+    }
 }
 
 function compair_lists() {
     let pco_song_list = document.getElementById('pco_song_list')
     let spotify_song_children = document.getElementById('spotify_song_list')
+    let match_list = []
 
     // if(pco_song_list.children.length == 1 && spotify_song_children.children.length == 1 ) {
     //     alert('Please Select a Spotify and PCO playlist')
@@ -168,25 +179,39 @@ function compair_lists() {
 
     for(let spotify_items = 0; spotify_items < spotify_list.length; spotify_items++) {
         for(let pco_items = 0; pco_items < pco_list.length; pco_items++) {
-            if(pco_list[pco_items].includes(spotify_list[spotify_items])) {
-                let spotify_match = spotify_song_children.children[spotify_items].id
-
-                spotify_playlist_snapshot_id = spotify_get_playlist_snapshot_id()
-                spotify_playlist_id = spotify_get_playlist_id()
-
-                spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`,spotify_match, spotify_playlist_snapshot_id).then ((data) => {
-                    console.log(`spotify:track:${spotify_match}`)
-                    data = JSON.parse(data)
-                    console.log(data)
-                })
-
-                console.log(document.getElementById(spotify_match))
-                console.log(`PCO MATCH: "${pco_list[pco_items]}"`)
-                console.log(`SPOTIFY MATCH: "${spotify_song_children.children[spotify_items].id}"`)
+            if(pco_list[pco_items].search(spotify_list[spotify_items])) {
+                let spotify_match = `spotify:track:${spotify_song_children.children[spotify_items].id}`
+                match_list.push(spotify_match)
             }
         }
     }
 
+    spotify_playlist_snapshot_id = spotify_get_playlist_snapshot_id()
+    spotify_playlist_id = spotify_get_playlist_id()
+    let spotify_playlist_data = create_spotify_delete_data(match_list, spotify_playlist_snapshot_id)
+
+    console.log(match_list)
+    console.log(create_spotify_delete_data(match_list, spotify_playlist_snapshot_id))
+    console.log(spotify_playlist_id)
+
+    // spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`, JSON.parse(spotify_playlist_data)).then ((data) => {
+    //     data = JSON.stringify(data)
+    //     console.log(data)
+    // })
+
+}
+
+function create_spotify_delete_data(uris, snapsoht_id) {
+    let post_data = {
+        tracks: [],
+        snapshot_id: ""
+    }
+
+    for (let i = 0; i < uris.length; i++) {
+        post_data.tracks.push({ uri: `${uris[i]}` });
+    }
+    post_data.snapshot_id = `${snapsoht_id}`
+    return JSON.stringify(post_data, null, 2)
 }
 
 function spotify_get_playlist_snapshot_id() { 
@@ -200,19 +225,11 @@ function spotify_get_playlist_id() {
 }
 
 
-async function spotify_call_delete_api(url, spotify_match, spotify_playlist_id) {
+async function spotify_call_delete_api(url, delete_data) {
     const spotify_access_info = JSON.stringify({
         "spotify_access_token": localStorage.getItem('spotify_access_token'),
         "url": url,
-        test: 
-            {
-                tracks:[
-                    {
-                        uri: `spotify:track:${spotify_match}`
-                    }
-                ],
-                snapshot_id: `${spotify_playlist_id}`
-            }
+        "playlist_data": delete_data
     })
     const response = await fetch('./php/spotify/spotify_call_delete_api.php', {
         method: 'POST',
