@@ -3,7 +3,7 @@
     $spotify_url = $post_info["url"];
     $spotify_access_token = $post_info["spotify_access_token"];
 
-    echo json_encode($post_info['test']);
+    echo json_encode($post_info['playlist_data']);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $spotify_url);
@@ -13,7 +13,7 @@
         'Content-Type: application/json',
         "Authorization: Bearer {$spotify_access_token}",
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_info['test']));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_info['playlist_data']));
 
     $response = curl_exec($ch);
 
