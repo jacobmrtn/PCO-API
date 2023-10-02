@@ -39,6 +39,7 @@ function spotify_get_access_token(spotify_code) {
             data = JSON.parse(data)
             localStorage.setItem('spotify_access_token', data.access_token)
             localStorage.setItem('spotify_refresh_token', data.refresh_token)
+            document.getElementById('title').innerHTML = 'Success'
             window.location.href = "http://127.0.0.1:8888/app.html"
         })
         .catch(error => {
@@ -116,7 +117,7 @@ function refresh_spotify_playlists() {
     document.getElementById('spotify_loading_text').innerHTML = "LOADING..."
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
-        if(data.length < 15 && data.includes("401")) {
+        if(data === 401) {
             loading_text('spotify_loading_text', 'Failed! - Try requesting a new Spotify token', null)
         } else {
             remove_all_children("playlists")
@@ -250,4 +251,8 @@ function loading_text(id, text, timeout) {
             document.getElementById(id).innerHTML = ""
         }, timeout)
     }
+}
+
+function main_app_redirect() {
+    window.location.href = 'http://127.0.0.1:8888/app.html'
 }
