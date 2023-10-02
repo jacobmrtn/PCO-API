@@ -113,9 +113,7 @@ function pco_load_services() {
     document.getElementById('pco_loading_text').innerHTML = "LOADING..."
     pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=-created_at").then ((data) => {
         data = JSON.parse(data)
-        console.log(data)
-        if(data.length < 15) {
-            console.log("Error")
+        if(data === 401) {
             loading_text('pco_loading_text', 'Failed! - Try requesting a new PCO token', null)
         } else {
             populate_plan_dropdown(data)
@@ -156,32 +154,23 @@ function loading_text(id, text, timeout) {
 }
 
 function compair_lists() {
-    let pco_song_list = document.getElementById('pco_song_list')
-    let spotify_song_children = document.getElementById('spotify_song_list')
+    let pco_song_list = Array.from(document.getElementById('pco_song_list').children)
+    let spotify_song_list = Array.from(document.getElementById('spotify_song_list').children)
+
     let match_list = []
 
-    // if(pco_song_list.children.length == 1 && spotify_song_children.children.length == 1 ) {
-    //     alert('Please Select a Spotify and PCO playlist')
-    //     return
-    // } else if(pco_song_list.children.length == 1 || spotify_song_children.children.length == 1){
-    //     alert('Please Select a Spotify and PCO playlist')
-    //     return
-    // }
-    let pco_list = []
-    let spotify_list = []
-    for(let i = 0; i < spotify_song_children.children.length; i++) {
-        spotify_list.push(spotify_song_children.children[i].innerHTML)
-    }
 
-    for(let i = 0; i < pco_song_list.children.length; i++) {
-        pco_list.push(pco_song_list.children[i].innerHTML)
-    }
+    for(let spotify_item = 0; spotify_item < spotify_song_list.length; spotify_item++) {
 
-    for(let spotify_items = 0; spotify_items < spotify_list.length; spotify_items++) {
-        for(let pco_items = 0; pco_items < pco_list.length; pco_items++) {
-            if(pco_list[pco_items].search(spotify_list[spotify_items])) {
-                let spotify_match = `spotify:track:${spotify_song_children.children[spotify_items].id}`
-                match_list.push(spotify_match)
+        let spotify_song = spotify_song_list[spotify_item].innerHTML.trim().toLowerCase()
+
+        for(let pco_item = 0; pco_item < pco_song_list.length; pco_item++) {
+
+            let pco_song = pco_song_list[pco_item].innerHTML.trim().toLowerCase()
+
+            if(spotify_song.includes(pco_song)) {
+                console.log(spotify_song)
+                match_list.push(`spotify:track:${spotify_song_list[spotify_item].id}`)
             }
         }
     }
@@ -192,12 +181,12 @@ function compair_lists() {
 
     console.log(match_list)
     console.log(create_spotify_delete_data(match_list, spotify_playlist_snapshot_id))
-    console.log(spotify_playlist_id)
 
-    // spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`, JSON.parse(spotify_playlist_data)).then ((data) => {
-    //     data = JSON.stringify(data)
-    //     console.log(data)
-    // })
+    spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`, JSON.parse(spotify_playlist_data)).then ((data) => {
+        console.log("yay?")
+    }).catch(error => {
+        console.log(error)
+    })
 
 }
 
@@ -239,4 +228,8 @@ async function spotify_call_delete_api(url, delete_data) {
         body: spotify_access_info
     })
     return response.json()
+}
+
+function pco_page_redirect_ccli() {
+    window.location.href = "http://127.0.0.1:8888/ccli.html"
 }
