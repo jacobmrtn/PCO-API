@@ -20,7 +20,7 @@
     if($response !== false) {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if($httpcode == 200) {
-            echo json_encode($response);
+            echo $response;
         } elseif($httpcode == 400) {
             echo $response;
         }
