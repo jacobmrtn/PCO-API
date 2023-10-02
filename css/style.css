@@ -61,9 +61,10 @@ select {
     display: block;
 }
 
-#request_api {
+.page-header > button {
     margin-right: 5px;
 }
+
 
 p {
     color: white;
@@ -144,14 +145,14 @@ p {
     justify-content: center;
 }
 
-div.request-tokens {
+div.page-header {
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     justify-content: flex-end;
 }
 
-div.request-tokens:first-child{
+div.page-header:first-child{
     margin-bottom: 5px;
 }
 
