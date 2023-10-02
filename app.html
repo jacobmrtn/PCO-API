@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body onload="pco_on_page_load()">
-    <div class="request-tokens">
+    <div class="page-header">
         <button id="request_api" onclick="pco_init_oauth()">Request PCO token</button>
         <button id="request_spotify_token" onclick="init_spot_reauth()">Request Spotify token</button>
+        <button onclick="pco_page_redirect_ccli()">CCLI Tools</button>
     </div>
 
     <div class="group">
@@ -60,6 +61,7 @@
     
     <div class="configure-button">
         <button id="compair_both_list" onclick="compair_lists()">Continue</button>
+        <p id="#success_text"></p>
     </div>
 
     <div id="pco_songs"></div>
