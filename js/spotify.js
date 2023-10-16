@@ -118,6 +118,7 @@ function refresh_spotify_playlists() {
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
         if(data === 401) {
+            document.getElementById('spotify_loading_text').setAttribute('class', 'error-text')
             loading_text('spotify_loading_text', 'Access token expired - Requst a new one', null)
         } else {
             remove_all_children("playlists")
@@ -133,6 +134,7 @@ function refresh_spotify_playlists() {
     }).catch(error => {
         console.error(error)
     })
+    spotify_get_user()
 }
 
 function spotify_refresh_playlist_tracks() {
@@ -195,9 +197,19 @@ function spotify_handle_playlist_track_response_over_100(offset) {
     })
 }
 
+function spotify_get_user() {
+    spotify_call_api("GET", "https://api.spotify.com/v1/me").then((data) => {
+    data = JSON.parse(data)
+    localStorage.setItem('spotify_user_id', data.id)
+    }).catch(error => {
+        console.log(error)
+    })
+}
+
 function add_dropdown_header(id) {
     let select_node = document.createElement("option")
     select_node.innerHTML = "Select playlist --"
+    select_node.setAttribute('class', 'dropdown-header')
     document.getElementById(id).appendChild(select_node)
 }
 
@@ -205,6 +217,7 @@ function add_spotify_playlist(item, id){
     let node = document.createElement("option")
     node.value = item.id
     node.innerHTML = item.name + " (" + item.tracks.total + ")"
+    node.setAttribute('class', 'dropdown-item')
     node.setAttribute('data-snapshot-id', item.snapshot_id)
     document.getElementById(id).appendChild(node)
 }
@@ -234,6 +247,7 @@ async function spotify_call_api(method, url) {
 
     return response.json()
 }
+
 
 function remove_all_children( elementId){
     let node = document.getElementById(elementId)

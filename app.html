@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PCO X SPOTIFY</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
 <body onload="pco_on_page_load()">
     <div class="page-header">
+        <button onclick="spotify_get_user()"">get data</button>
         <button id="request_api" onclick="pco_init_oauth()">Request PCO token</button>
         <button id="request_spotify_token" onclick="init_spot_reauth()">Request Spotify token</button>
         <button onclick="pco_page_redirect_ccli()">CCLI Tools</button>
@@ -44,7 +45,9 @@
         </select>
     </div>
 
-    <div class="form" id="song_list_section">
+    <h1 class="form heading" style="margin-top: 5px;">Compare Songs</h1>
+
+    <div class="form" id="song_list_section" style="margin-top: 5px;">
         <div class="song-list-heading">
             <h3>Spotify Songs</h3>
             <h3>Planning Center Songs</h3>
@@ -60,7 +63,7 @@
     </div>
     
     <div class="configure-button">
-        <button id="compair_both_list" onclick="compair_lists()">Continue</button>
+        <button id="compare_both_list" onclick="compare_lists()">Continue</button>
         <p id="#success_text"></p>
     </div>
 

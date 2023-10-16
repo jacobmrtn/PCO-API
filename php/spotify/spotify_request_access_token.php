@@ -3,7 +3,7 @@
     $config = parse_ini_file($config_path, true);
     
     $spotify_authorize_url = 'https://accounts.spotify.com/authorize?';
-    $spotify_scope = 'playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative';
+    $spotify_scope = 'playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative user-read-private user-read-email';
 
     $params = array(
         'response_type' => 'code',
