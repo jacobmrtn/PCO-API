@@ -114,7 +114,7 @@ function pco_load_services() {
     pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=-created_at").then ((data) => {
         data = JSON.parse(data)
         if(data === 401) {
-            loading_text('pco_loading_text', 'Failed! - Try requesting a new PCO token', null)
+            loading_text('pco_loading_text', 'Access token expired - Requst a new one', null)
         } else {
             populate_plan_dropdown(data)
             loading_text('pco_loading_text', 'DONE!', 5000)
@@ -169,8 +169,11 @@ function compair_lists() {
             let pco_song = pco_song_list[pco_item].innerHTML.trim().toLowerCase()
 
             if(spotify_song.includes(pco_song)) {
+
                 console.log(spotify_song)
+
                 match_list.push(`spotify:track:${spotify_song_list[spotify_item].id}`)
+                
             }
         }
     }

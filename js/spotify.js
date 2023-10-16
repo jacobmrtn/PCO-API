@@ -118,7 +118,7 @@ function refresh_spotify_playlists() {
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
         if(data === 401) {
-            loading_text('spotify_loading_text', 'Failed! - Try requesting a new Spotify token', null)
+            loading_text('spotify_loading_text', 'Access token expired - Requst a new one', null)
         } else {
             remove_all_children("playlists")
             remove_all_children('playlists_to_save')
