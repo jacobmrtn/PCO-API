@@ -60,7 +60,6 @@ function pco_request_access_token() {
         .then(data => {
             localStorage.setItem('pco_access_token', data.access_token) 
             localStorage.setItem('pco_refresh_token', data.refresh_token)
-            console.log(data)
         })
         .catch(error => {
             console.log("Error:", error)
