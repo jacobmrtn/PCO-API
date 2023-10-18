@@ -114,12 +114,12 @@ function spotify_refresh_access_token() {
 }
 
 function refresh_spotify_playlists() {
+    document.getElementById('spotify_loading_text').classList.remove('error-text')
     document.getElementById('spotify_loading_text').innerHTML = "LOADING..."
     spotify_call_api("GET", PLAYLISTS).then ((data) => {
         data = JSON.parse(data)
         if(data === 401) {
-            document.getElementById('spotify_loading_text').setAttribute('class', 'error-text')
-            loading_text('spotify_loading_text', 'Access token expired - Requst a new one', null)
+            spotify_loading_text('spotify_loading_text', 'Access token expired - Requst a new one', null, 'error')
         } else {
             remove_all_children("playlists")
             remove_all_children('playlists_to_save')
@@ -128,7 +128,7 @@ function refresh_spotify_playlists() {
             add_dropdown_header('playlists_to_save')
             data.items.forEach(item => add_spotify_playlist(item, 'playlists'))
             data.items.forEach(item => add_spotify_playlist(item, 'playlists_to_save'))
-            loading_text('spotify_loading_text', 'DONE!', 5000)
+            spotify_loading_text('spotify_loading_text', 'SUCCESS!', 5000, 'success')
         }
 
     }).catch(error => {
@@ -256,15 +256,21 @@ function remove_all_children( elementId){
     }
 }
 
-function loading_text(id, text, timeout) {
-    document.getElementById(id).innerHTML = text
-    if(timeout == null) {
-        document.getElementById(id).innerHTML = text
-    } else if(timeout != null) {
+function spotify_loading_text(id, text, timeout, type) {
+    let element = document.getElementById(id)
+
+    if(type === 'error') {
+        element.setAttribute('class', 'error-text')
+        element.innerText = text
+    } else if(type === 'success') {
+        element.setAttribute('class', 'success-text')
+        element.innerText = text
         setTimeout(() => {
-            document.getElementById(id).innerHTML = ""
+            element.innerHTML = ''
+            element.removeAttribute('class', 'success-text')
         }, timeout)
     }
+
 }
 
 function main_app_redirect() {

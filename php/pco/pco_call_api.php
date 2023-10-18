@@ -17,7 +17,7 @@
         if($http_code == 200) {
             echo json_encode($response);        
         } elseif($http_code == 401) {
-            $response = '401';
+            $response = 401;
             echo json_encode($response);        
         }
     }

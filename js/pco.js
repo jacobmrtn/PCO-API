@@ -110,16 +110,15 @@ function add_plan_item(pco_response, index) {
 }
 
 function pco_load_services() {
+    document.getElementById('pco_loading_text').classList.remove('error-text')
     document.getElementById('pco_loading_text').innerHTML = "LOADING..."
     pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=-created_at").then ((data) => {
         data = JSON.parse(data)
         if(data === 401) {
-            document.getElementById('pco_loading_text').setAttribute('class', 'error-text')
-            loading_text('pco_loading_text', 'Access token expired - Requst a new one', null, 'error-text')
+            loading_text('pco_loading_text', 'Access token expired - Requst a new one!', null, 'error')
         } else {
             populate_plan_dropdown(data)
-            document.getElementById('pco_loading_text').setAttribute('class', 'success-text')
-            loading_text('pco_loading_text', 'SUCCESS!', 5000)
+            loading_text('pco_loading_text', 'SUCCESS!', 5000, 'success')
             
         }
     })
@@ -145,16 +144,21 @@ function remove_all_children(element) {
     }
 }
 
-function loading_text(id, text, timeout) {
-    document.getElementById(id).innerHTML = text
-    if(timeout == null) {
-        document.getElementById(id).innerHTML = text
-    } else if(timeout != null) {
+function loading_text(id, text, timeout, type) {
+    let element = document.getElementById(id)
+
+    if(type === 'error') {
+        element.setAttribute('class', 'error-text')
+        element.innerText = text
+    } else if(type === 'success') {
+        element.setAttribute('class', 'success-text')
+        element.innerText = text
         setTimeout(() => {
-            document.getElementById('pco_loading_text').classList.remove('success-text')
-            document.getElementById(id).innerHTML = ""
+            element.innerHTML = ''
+            element.removeAttribute('class', 'success-text')
         }, timeout)
     }
+
 }
 
 function compare_lists() {
