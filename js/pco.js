@@ -1,3 +1,5 @@
+import { loading_text } from "./functions.js"
+
 const pco_authorize_link = 'https://api.planningcenteronline.com/oauth/authorize'
 const pco_token_link = 'https://api.planningcenteronline.com/oauth/token'
 const pco_client_id = '436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819'
@@ -9,6 +11,13 @@ const scope = 'services'
 let spotify_playlist_id = ""
 let spotify_playlist_snapshot_id = ""
 
+document.addEventListener('DOMContentLoaded', () => {
+    pco_on_page_load()
+    document.getElementById('request_pco_token').addEventListener('click', pco_init_oauth)
+    document.getElementById('pco_load_services').addEventListener('click', pco_load_services)
+    document.getElementById('plans').addEventListener('change', pco_get_songs)
+    document.getElementById('compare_both_list').addEventListener('click', compare_lists)
+})
 
 window.addEventListener('load', pco_on_page_load())
 
@@ -23,9 +32,6 @@ function pco_handle_redirect() {
     pco_request_access_token()
     window.history.pushState("", "", pco_uri)
 }
-
-document.getElementById('request_api').addEventListener('click', pco_init_oauth)
-document.getElementById('pco_load_services').addEventListener('click', pco_load_services)
 
 function pco_init_oauth() {
     // fetch('pco_init_oauth.php', {
@@ -143,28 +149,12 @@ function remove_all_children(element) {
     }
 }
 
-function loading_text(id, text, timeout, type) {
-    let element = document.getElementById(id)
-
-    if(type === 'error') {
-        element.setAttribute('class', 'error-text')
-        element.innerText = text
-    } else if(type === 'success') {
-        element.setAttribute('class', 'success-text')
-        element.innerText = text
-        setTimeout(() => {
-            element.innerHTML = ''
-            element.removeAttribute('class', 'success-text')
-        }, timeout)
-    }
-
-}
-
 function compare_lists() {
     let pco_song_list = Array.from(document.getElementById('pco_song_list').children)
     let spotify_song_list = Array.from(document.getElementById('spotify_song_list').children)
 
     let match_list = []
+    let song_list = []
 
 
     for(let spotify_item = 0; spotify_item < spotify_song_list.length; spotify_item++) {
@@ -174,6 +164,7 @@ function compare_lists() {
             if(spotify_song.includes(pco_song)) {
                 console.log(spotify_song)
                 match_list.push(`spotify:track:${spotify_song_list[spotify_item].id}`)
+                song_list.push(spotify_song_list[spotify_item].id)
             }
         }
     }
@@ -189,9 +180,12 @@ function compare_lists() {
         console.log(error)
     })
     
-    console.log(create_spotify_delete_data(match_list, spotify_playlist_snapshot_id))
+    spotify_check_playlist(`https://api.spotify.com/v1/me/playlists`, "GET").then((data) => {
+        data = JSON.parse(data)
+        data.items.forEach((item, index) => test_1(item, index))
+    })
 
-    spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`, JSON.parse(spotify_playlist_data)).then ((data) => {
+    spotify_call_delete_api(`'DELETE', https://api.spotify.com/v1/playlists/${spotify_playlist_id}/tracks`, JSON.parse(spotify_playlist_data)).then ((data) => {
         console.log(data)
     }).catch(error => {
         console.log(error)
@@ -239,6 +233,11 @@ function spotify_create_new_playlist_info() {
     return JSON.stringify(post_data, null, 2)
 }
 
+function test_1(item, index) {
+
+    console.log(item.id, item)
+}
+
 async function spotify_create_playlist(url, request_body) {
     const request_info = JSON.stringify({
         "spotify_access_token": localStorage.getItem('spotify_access_token'),
@@ -255,10 +254,29 @@ async function spotify_create_playlist(url, request_body) {
     return response.json()
 }
 
-async function spotify_call_delete_api(url, delete_data) {
+
+async function spotify_check_playlist(url, method) {
     const spotify_access_info = JSON.stringify({
         "spotify_access_token": localStorage.getItem('spotify_access_token'),
         "url": url,
+        "method": method
+    })
+    const response = await fetch('./php/spotify/spotify_call_api.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: spotify_access_info
+    })
+
+    return response.json()
+}
+
+async function spotify_call_delete_api(method, url, delete_data) {
+    const spotify_access_info = JSON.stringify({
+        "spotify_access_token": localStorage.getItem('spotify_access_token'),
+        "url": url,
+        "method": method,
         "playlist_data": delete_data
     })
     const response = await fetch('./php/spotify/spotify_call_delete_api.php', {

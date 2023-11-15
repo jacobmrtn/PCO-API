@@ -4,11 +4,11 @@ body {
 }
 
 ::-webkit-scrollbar {
-    background-color: #403f3f !important;
+    background-color: #212529;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #212529;
+    background-color: #403f3f !important;
 }
 
 label {
@@ -184,16 +184,18 @@ div.page-header:first-child{
 }
 
 #spotify_song_list {
+    max-width: 40%;
     border: 1px solid #676767;
     border-radius: 3px;
     margin-top: 10px;
     padding-left: 10px;
     padding-right: 10px;
     max-height: 390px;
-    overflow-y:auto;
+    overflow-y: auto;
 }
 
 #pco_song_list {
+    max-width: 40%;
     border: 1px solid #676767;
     border-radius: 3px;
     margin-top: 10px;
