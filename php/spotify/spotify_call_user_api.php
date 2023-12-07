@@ -2,8 +2,7 @@
     $post_info = json_decode(file_get_contents('php://input'), true);
     $spotify_url = $post_info["url"];
     $spotify_access_token = $post_info["spotify_access_token"];
-
-    echo json_encode($post_info['request_body']);
+    $spotify_request_body = $post_info["request_body"];
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $spotify_url);
@@ -13,14 +12,12 @@
         'Content-Type: application/json',
         "Authorization: Bearer {$spotify_access_token}",
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_info['request_body']));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($spotify_request_body));
 
     $response = curl_exec($ch);
-
     if($response !== false) {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if($httpcode == 200) {
-            $response = '200';
+        if($httpcode == 201) {
             echo json_encode($response);
         } elseif($httpcode == 400) {
             echo json_encode($response);
