@@ -57,6 +57,11 @@ select > option {
     padding: 10px;
 }
 
+p {
+    color: white;
+}
+
+
 .dropdown-header {
     background-color: #212529;
     border-bottom: 3px solid #676767;
@@ -75,11 +80,6 @@ select > option {
     margin-right: 5px;
 }
 
-
-p {
-    color: white;
-}
-
 .error-text {
     font-weight: 900;
     color: rgb(235, 108, 92);
@@ -87,6 +87,11 @@ p {
 
 .success-text {
     color: rgb(172, 239, 134);
+}
+
+.refresh-text {
+    font-weight: 900;
+    color: #00c3ff;
 }
 
 .group {
@@ -204,4 +209,8 @@ div.page-header:first-child{
     height: fit-content;
     max-height: 390px;
     overflow-y:auto;
+}
+
+#pco_song_title {
+    max-width: 25%;
 }
