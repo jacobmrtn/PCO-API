@@ -1,4 +1,5 @@
 let redirect_uri = "http://127.0.0.1:8888/spotify.html"
+let app_redirect = "http://127.0.0.1:8888/app.html"
 
 function on_page_load() {
     if (window.location.search.length > 0){
@@ -9,7 +10,7 @@ function on_page_load() {
             console.warn("User probably requested token again. Clear localstorage")
             console.table(localStorage)
         } else if(access_token != null){
-            window.location.href = "http://127.0.0.1:8888/app.html"
+            window.location.href = app_redirect
         }
     }
 }
@@ -35,7 +36,7 @@ function spotify_get_access_token(spotify_code) {
             localStorage.setItem('spotify_access_token', data.access_token)
             localStorage.setItem('spotify_refresh_token', data.refresh_token)
             document.getElementById('title').innerHTML = 'Success'
-            window.location.href = "http://127.0.0.1:8888/app.html"
+            window.location.href = app_redirect
         })
         .catch(error => {
             console.error(error)
@@ -70,29 +71,6 @@ function spotify_request_access_token() {
             console.error(error)
         })
 }
-
-function spotify_refresh_access_token() {
-    fetch('./php/spotify/spotify_refresh_access_token.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(localStorage.getItem('spotify_refresh_token'))
-    })        
-        .then(response => response.json())
-        .then(data => {
-            data = JSON.parse(data)
-            localStorage.setItem('spotify_access_token', data.access_token)
-            localStorage.setItem('spotify_refresh_token', data.refresh_token)
-            if(data.error = "invalid_grant") {
-                alert('Reauthorize the Spotify app. Click "Request Spotify token')
-            }
-        })
-        .catch(error => {
-            console.error(error)
-        })
-}
-
 function main_app_redirect() {
-    window.location.href = 'http://127.0.0.1:8888/app.html'
+    window.location.href = app_redirect
 }
