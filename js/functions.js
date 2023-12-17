@@ -22,6 +22,13 @@ function loading_text(id, text, timeout, type) {
 
 }
 
+function add_dropdown_header(id, text) {
+    let node = document.createElement("option")
+    node.innerHTML = text
+    node.setAttribute('class', 'dropdown-header')
+    document.getElementById(id).appendChild(node)
+}
+
 function remove_all_children(elementId){
     let node = document.getElementById(elementId)
     while (node.firstChild) {
@@ -102,4 +109,4 @@ function pco_refresh_access_token() {
         })
 }
 
-export { loading_text, remove_all_children, spotify_call_api, spotify_refresh_access_token, pco_refresh_access_token }
+export { loading_text, remove_all_children, spotify_call_api, spotify_refresh_access_token, pco_refresh_access_token, add_dropdown_header }

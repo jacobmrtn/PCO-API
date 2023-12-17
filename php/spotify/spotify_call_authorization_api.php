@@ -8,7 +8,7 @@
     $body = array(
         'grant_type' => 'authorization_code',
         'code' => "{$spotify_code}",
-        'redirect_uri' => 'http://127.0.0.1:8888/spotify.html',
+        'redirect_uri' => $config['spotify']['redirect_uri'],
         'client_id' => $config['spotify']['client_id'],
         'client_secret' => $config['spotify']['client_secret'],
     );

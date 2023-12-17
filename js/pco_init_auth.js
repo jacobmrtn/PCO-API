@@ -1,7 +1,7 @@
 window.addEventListener('load', on_page_load())
 const pco_client_id = '436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819'
-const pco_uri = 'http://127.0.0.1:8888/pco_init.html'
-const app_redirect = "http://127.0.0.1:8888/app.html"
+const pco_uri = 'https://192.168.200.143/pco_init.html'
+const app_redirect = "https://192.168.200.143/app.html"
 const scope = 'services'
 
 function on_page_load() {
@@ -11,13 +11,13 @@ function on_page_load() {
 }
 
 function get_code_url() {
-    window.location.href = `https://api.planningcenteronline.com/oauth/authorize?client_id=436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819&redirect_uri=http://127.0.0.1:8888/pco_init.html&response_type=code&scope=services`
+    window.location.href = `https://api.planningcenteronline.com/oauth/authorize?client_id=436b59ef4349b87ade668b83f3a9b4b4f7dd6719e6c12789ff235b584cb90819&redirect_uri=https://192.168.200.143/pco_init.html&response_type=code&scope=services`
 }
 
 function pco_handle_redirect() {
     pco_get_code()
     pco_request_access_token()
-    window.history.pushState("", "", '127.0.0.1:8888/pco_init.html')
+    window.history.pushState("", "", 'https://192.168.200.143/pco_init.html')
 }
 
 function pco_get_code() {
@@ -80,4 +80,8 @@ function pco_refresh_access_token() {
         .catch(error => {
             console.error(error)
         })
+}
+
+function main_app_redirect() {
+    window.location.href = app_redirect
 }

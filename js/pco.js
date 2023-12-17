@@ -1,4 +1,4 @@
-import { loading_text, remove_all_children, pco_refresh_access_token} from "./functions.js"
+import { loading_text, remove_all_children, pco_refresh_access_token, add_dropdown_header} from "./functions.js"
 import { refresh_spotify_playlists } from "./spotify.js"
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function init_pco_reauth() {
     localStorage.removeItem('pco_access_token')
 
-    window.location.href = ("http://127.0.0.1:8888/pco_init.html")
+    window.location.href = ("https://192.168.200.143/pco_init.html")
 }
 
 // function used to call PCO Api
@@ -32,7 +32,8 @@ async function pco_call_api(url) {
 }
 
 function populate_plan_dropdown(parsed_data) {
-    document.getElementById('refresh_plans').innerHTML = 'Select plans --'
+    remove_all_children('plans')
+    add_dropdown_header('plans', 'Select plan --')
     for(let i = 0; i < parsed_data.data.length; i++) {
         add_plan_title(parsed_data, i)
     }
@@ -70,19 +71,23 @@ function add_plan_item(pco_response, index, has_song) {
 }
 
 function pco_load_services() {
-    document.getElementById('pco_loading_text').classList.remove('error-text')
-    document.getElementById('pco_loading_text').innerHTML = "LOADING..."
-    pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=sort_data&filter=future").then ((data) => {
-        data = JSON.parse(data)
-        if(data === 401) {
-            pco_refresh_access_token()
-            loading_text('pco_loading_text', 'Access token expired - Requst a new one!', null, 'error')
-        } else {
-            populate_plan_dropdown(data)
-            loading_text('pco_loading_text', 'SUCCESS!', 5000, 'success')
-            
-        }
-    })
+    if(localStorage.getItem('pco_access_token') == null) {
+        loading_text('pco_loading_text', 'Please request PCO token!', null, 'error')
+    } else {
+        document.getElementById('pco_loading_text').classList.remove('error-text')
+        document.getElementById('pco_loading_text').innerHTML = "LOADING..."
+        pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=sort_data&filter=future").then ((data) => {
+            data = JSON.parse(data)
+            if(data === 401) {
+                pco_refresh_access_token()
+                loading_text('pco_loading_text', 'Access token expired - Requst a new one!', null, 'error')
+            } else {
+                populate_plan_dropdown(data)
+                loading_text('pco_loading_text', 'SUCCESS!', 5000, 'success')
+                
+            }
+        })
+    }
 }
 
 function pco_get_songs() {
@@ -299,6 +304,6 @@ async function spotify_call_delete_api(url, delete_data) {
     return response.json()
 }
 
-function pco_page_redirect_ccli() {
-    window.location.href = "http://127.0.0.1:8888/ccli.html"
-}
+// function pco_page_redirect_ccli() {
+//     window.location.href = "http://127.0.0.1:8888/ccli.html"
+// }

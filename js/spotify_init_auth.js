@@ -1,5 +1,5 @@
-let redirect_uri = "http://127.0.0.1:8888/spotify.html"
-let app_redirect = "http://127.0.0.1:8888/app.html"
+let redirect_uri = "https://192.168.200.143/spotify.html"
+let app_redirect = "https://192.168.200.143/app.html"
 
 function on_page_load() {
     if (window.location.search.length > 0){
