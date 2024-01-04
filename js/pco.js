@@ -75,6 +75,8 @@ function pco_load_services() {
         loading_text('pco_loading_text', 'Please request PCO token!', null, 'error')
     } else {
         document.getElementById('pco_loading_text').classList.remove('error-text')
+        document.getElementById('pco_loading_text').classList.remove('success-text')    
+        document.getElementById('pco_loading_text').classList.remove('refresh-text')
         document.getElementById('pco_loading_text').innerHTML = "LOADING..."
         pco_call_api("https://api.planningcenteronline.com/services/v2/service_types/50209/plans?order=sort_data&filter=future").then ((data) => {
             data = JSON.parse(data)
@@ -139,7 +141,7 @@ function compare_lists() {
     let delete_list = []
     let song_list = []
     let populate_list = []
-
+    
     for(let spotify_item = 0; spotify_item < spotify_song_list.length; spotify_item++) {
         let spotify_song = spotify_song_list[spotify_item].innerHTML.trim().toLowerCase()
         for(let pco_item = 0; pco_item < pco_song_list.length; pco_item++) {
@@ -152,14 +154,48 @@ function compare_lists() {
         }
     }
 
-    let spotify_playlist_snapshot_id = spotify_selected_playlist_snapshot_id() 
-    let spotify_selected_playlist_id = spotify_get_selected_playlist_id()
+    let spotify_playlist_snapshot_id = spotify_selected_playlist_snapshot_id("playlists") 
+    let spotify_selected_playlist_id = spotify_get_selected_playlist_id("playlists")
     let spotify_playlist_info = spotify_new_playlist_info()
     let spotify_playlist_delete_data = create_spotify_delete_data(delete_list, spotify_playlist_snapshot_id)
     let populate_spotify_playlist_data = create_spotify_playlist_data(populate_list)
     let spotify_playlist_to_populate
 
-    if(delete_list != 0) {
+    let use_custom_save_location = document.getElementById('pre_made_playlist_check').checked
+    let clear_pre_made_playlist = document.getElementById('remove_songs_pre_made_playlist_check').checked
+    let custom_save_local = Array.from(document.getElementById('custom_save_location_song_list').children)
+    let selected_custom_save_local_id = spotify_get_selected_playlist_id("spotify_custom_save_location")
+    let custom_save_local_spotify_snapshot_id = spotify_selected_playlist_snapshot_id("spotify_custom_save_location")
+    let clear_list = []
+
+    if(delete_list != 0 && use_custom_save_location == true && clear_pre_made_playlist == true) {
+        let spotify_playlist_to_populate = spotify_get_selected_playlist_id('spotify_custom_save_location')
+
+        for(let i = 0; i < custom_save_local.length; i++) {
+            clear_list.push(`spotify:track:${custom_save_local[i].id}`)
+        }
+
+        let custom_save_local_delete_data = create_spotify_delete_data(clear_list, custom_save_local_spotify_snapshot_id)
+        spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${selected_custom_save_local_id}/tracks`, JSON.parse(custom_save_local_delete_data)).catch(error => (console.error(error)))
+        spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_selected_playlist_id}/tracks`, JSON.parse(spotify_playlist_delete_data)).catch(error => (console.error(error)))
+        spotify_populate_playlist(`https://api.spotify.com/v1/playlists/${spotify_playlist_to_populate}/tracks`, JSON.parse(populate_spotify_playlist_data)).then (() => {
+            refresh_spotify_playlists(false, true)
+        }).catch(error => {
+            console.error(error)
+        })
+
+        alert(`Matches found! Successfully removed ${song_list.length} song(s)`)
+    } else if (delete_list != 0 && use_custom_save_location == true) {
+        let spotify_playlist_to_populate = spotify_get_selected_playlist_id('spotify_custom_save_location')
+        spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_selected_playlist_id}/tracks`, JSON.parse(spotify_playlist_delete_data)).catch(error => (console.error(error)))
+        spotify_populate_playlist(`https://api.spotify.com/v1/playlists/${spotify_playlist_to_populate}/tracks`, JSON.parse(populate_spotify_playlist_data)).then (() => {
+            refresh_spotify_playlists(false, true)
+        }).catch(error => {
+            console.error(error)
+        })
+
+        alert(`Matches found! Successfully removed ${song_list.length} song(s)`)
+    } else if(delete_list != 0 && use_custom_save_location == false) {
         spotify_create_playlist(`https://api.spotify.com/v1/users/${localStorage.getItem('spotify_user_id')}/playlists`, JSON.parse(spotify_playlist_info)).then ((data) => {
             data = JSON.parse(data)
             spotify_playlist_to_populate = data.id
@@ -175,9 +211,9 @@ function compare_lists() {
     
         spotify_check_playlist(`https://api.spotify.com/v1/me/playlists`, "GET").catch(error => (console.error(error)))
         spotify_call_delete_api(`https://api.spotify.com/v1/playlists/${spotify_selected_playlist_id}/tracks`, JSON.parse(spotify_playlist_delete_data)).catch(error => (console.error(error)))
-        alert(`Matches found! Successfully removed ${song_list.length} song(s), ${localStorage.getItem('spotify_playlist_id')}`)
+        alert(`Matches found! Successfully removed ${song_list.length} song(s)`)
     } else {
-        alert("No matches found!")
+        alert("No matched found!")
     }
 }
 
@@ -206,14 +242,14 @@ function create_spotify_delete_data(uris, snapsoht_id) {
     return JSON.stringify(post_data, null, 2)
 }
 
-function spotify_selected_playlist_snapshot_id() { 
-    let playlists = document.getElementById('playlists')
+function spotify_selected_playlist_snapshot_id(elementId) { 
+    let playlists = document.getElementById(elementId)
     let selected_playlist = playlists.options[playlists.selectedIndex]
     return selected_playlist.getAttribute('data-snapshot-id')
 }
 
-function spotify_get_selected_playlist_id() {
-    return document.getElementById('playlists').value
+function spotify_get_selected_playlist_id(id) {
+    return document.getElementById(`${id}`).value
 }
 
 function spotify_new_playlist_info() {

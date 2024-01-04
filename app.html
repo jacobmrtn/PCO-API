@@ -29,8 +29,37 @@
             <p id="spotify_loading_text"></p>
         </div>
         <select id="playlists" class="refresh-buttons">
-            <option id="refresh_playlist">Refresh playlists --</option>
+            <option id="refresh_playlist">Refresh playlist --</option>
         </select>
+        <div class="custom-save-location">
+            <div class="select-save-location">
+                <div class="drops">
+                    <h3>Select Spotify Playlist To Save Removed Songs To</h3>
+                </div>
+                <div class="custom-save-location-dropdown-list">
+                    <select id="spotify_custom_save_location" class="refresh-buttons">
+                        <option>Select playlist --</option>
+                    </select>
+                    <div class="custom-save-location-song-list">
+                        <h4 id="custom_save_location_spotify_songs_title">Custom Save Location Songs</h4>
+                        <div class="song-list-groups">
+                            <div id="custom_save_location_song_list">Select a playlist to save removed songs to</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="option-container">
+                <div class="option 2" id="spotify_settings_option_2">
+                    <label class="option-label" for="remove_songs_pre_made_playlist_check">Clear selected playlist before adding songs</label>
+                    <input type="checkbox" name="remove_old_songs_pre_made_playlist" id="remove_songs_pre_made_playlist_check">
+                </div>
+                <div class="option">
+                    <label class="option-label" for="pre_made_playlist_check">Save removed songs to specific playlist</label>
+                    <input type="checkbox" name="pre_made_playlist" id="pre_made_playlist_check">
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <h1 class="form heading" style="margin-top: 5px;">Compare Songs</h1>

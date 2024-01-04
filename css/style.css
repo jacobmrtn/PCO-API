@@ -11,7 +11,7 @@ body {
     background-color: #403f3f !important;
 }
 
-label {
+label, h3, h4 {
     font-size: x-large;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: 900;
@@ -27,6 +27,10 @@ input {
     border: none;
     border-radius: 3px;
     background-color: transparent;
+}
+
+input[type="checkbox"] {
+    margin-left: 5px;
 }
 
 button {
@@ -199,6 +203,17 @@ div.page-header:first-child{
     overflow-y: auto;
 }
 
+#custom_save_location_song_list {
+    max-width: 40%;
+    border: 1px solid #676767;
+    border-radius: 3px;
+    margin-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
 #pco_song_list {
     max-width: 40%;
     border: 1px solid #676767;
@@ -213,4 +228,47 @@ div.page-header:first-child{
 
 #pco_song_title {
     max-width: 25%;
+}
+
+.custom-save-location, .select-save-location, #spotify_settings_option_2 { 
+    display: none;
+}
+
+.option-container {
+    margin-left: 50px;
+    display: flex;
+    flex-direction: column;
+}
+
+.option-label {
+    font-size: medium;
+    font-weight: 900;
+}
+
+.option {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.custom-save-location-dropdown-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-save-location-song-list {
+    display: flex;
+    flex-direction: column;
+    border-radius: 3px;
+    padding: 10px;
+    outline: 1px solid #676767;
+    color: white !important;
+    width: 500px;
+    height: 200px;
+    margin: 10px;
+    margin-left: 50px;
+}
+
+#custom_save_location_spotify_songs_title {
+    margin: 5px;
 }
